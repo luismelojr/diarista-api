@@ -12,11 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
+            $table->char('cpf', 11)->unique();
+            $table->date('birth_date');
+            $table->string('photo_document_url');
+            $table->string('photo_user_url')->nullable();
+            $table->char('phone', 11);
+            $table->enum('type_user', ['admin', 'customer', 'diarist']);
+            $table->string('pix_key')->nullable()->unique();
+            $table->decimal('reputation', 2, 1)->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('status')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -29,7 +38,7 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignUuid('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');

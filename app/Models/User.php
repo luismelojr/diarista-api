@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\TypeUserEnum;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use HasUuids;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +22,15 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'cpf',
+        'birth_date',
+        'photo_document_url',
+        'photo_user_url',
+        'phone',
+        'type_user',
+        'pix_key',
+        'reputation',
+        'status'
     ];
 
     /**
@@ -41,7 +52,28 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'birth_date' => 'date',
             'password' => 'hashed',
+            'type_user' => TypeUserEnum::class,
+            'status' => 'boolean',
         ];
+    }
+
+    /**
+     * Scope a query to only include diarists.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeDiarists(Builder $query): Builder
+    {
+        return $query
+            ->where('type_user', TypeUserEnum::Diarist)
+            ->where('status', true);
+    }
+
+    public function cities(): BelongsToMany
+    {
+        return $this->belongsToMany(City::class, 'city_diarist', 'diarist_id', 'city_id');
     }
 }
